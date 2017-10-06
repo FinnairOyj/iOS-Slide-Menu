@@ -267,6 +267,14 @@ static SlideNavigationController *singletonInstance;
 	}
 }
 
+- (void)popToRootAndSwitchToViewController:(UIViewController *)viewController
+                         withPushAnimation:(BOOL)pushAnimation
+                     withSlideOutAnimation:(BOOL)slideOutAnimation
+                             andCompletion:(void (^)())completion
+{
+    [self switchToViewController:viewController withPushAnimation:pushAnimation withSlideOutAnimation:slideOutAnimation popType:PopTypeRoot andCompletion:completion];
+}
+
 - (void)switchToViewController:(UIViewController *)viewController withCompletion:(void (^)())completion
 {
 	[self switchToViewController:viewController withSlideOutAnimation:YES popType:PopTypeRoot andCompletion:completion];
@@ -802,6 +810,67 @@ static SlideNavigationController *singletonInstance;
 			else
 				[self openMenu:(currentX > 0) ? MenuLeft : MenuRight withCompletion:nil];
 		}
+    }
+}
+
+- (void)switchToViewController:(UIViewController *)viewController
+             withPushAnimation:(BOOL)pushAnimation
+         withSlideOutAnimation:(BOOL)slideOutAnimation
+                       popType:(PopType)poptype
+                 andCompletion:(void (^)())completion
+{
+    if (self.avoidSwitchingToSameClassViewController && [self.topViewController isKindOfClass:viewController.class])
+    {
+        [self closeMenuWithCompletion:completion];
+        return;
+    }
+    
+    void (^switchAndCallCompletion)(BOOL) = ^(BOOL closeMenuBeforeCallingCompletion) {
+        if (poptype == PopTypeAll) {
+            [self setViewControllers:@[viewController]];
+        }
+        else {
+            [super popToRootViewControllerAnimated:NO];
+            [super pushViewController:viewController animated:pushAnimation];
+        }
+        
+        if (closeMenuBeforeCallingCompletion)
+        {
+            [self closeMenuWithCompletion:^{
+                if (completion)
+                    completion();
+            }];
+        }
+        else
+        {
+            if (completion)
+                completion();
+        }
+    };
+    
+    if ([self isMenuOpen])
+    {
+        if (slideOutAnimation)
+        {
+            [UIView animateWithDuration:(slideOutAnimation) ? self.menuRevealAnimationDuration : 0
+                                  delay:0
+                                options:self.menuRevealAnimationOption
+                             animations:^{
+                                 CGFloat width = self.horizontalSize;
+                                 CGFloat moveLocation = (self.horizontalLocation> 0) ? width : -1*width;
+                                 [self moveHorizontallyToLocation:moveLocation];
+                             } completion:^(BOOL finished) {
+                                 switchAndCallCompletion(YES);
+                             }];
+        }
+        else
+        {
+            switchAndCallCompletion(YES);
+        }
+    }
+    else
+    {
+        switchAndCallCompletion(NO);
     }
 }
 
