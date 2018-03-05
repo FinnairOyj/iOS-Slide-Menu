@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
       :file => 'License.txt'
     }
     s.author = {'Aryan Ghassemi' => 'https://github.com/aryaxt/iOS-Slide-Menu'}
-    s.source = {:git => 'https://github.com/aryaxt/iOS-Slide-Menu.git', :tag => '1.5'}
+    s.source = {:git => 'https://github.com/FinnairOyj/iOS-Slide-Menu.git'}
     s.platform = :ios, '6.0'
     s.source_files = 'SlideMenu/Source/*.{h,m}', 'SlideMenu/Source/Animations/*.{h,m}'
     s.resources = ['SlideMenu/Source/Assets/**/*']
