@@ -140,7 +140,9 @@ static SlideNavigationController *singletonInstance;
     
     // When menu open we disable user interaction
     // When rotates we want to make sure that userInteraction is enabled again
-    [self enableTapGestureToCloseMenu:NO];
+    
+    // Solution to a reoccuring bug on the iOS app where the 'slideout viewcontroller' still is interactable. Cause seems to be Apple calling viewWillLayoutSubviews sooner than before during lifecycle
+//    [self enableTapGestureToCloseMenu:NO];
     
     if (self.menuNeedsLayout)
     {
